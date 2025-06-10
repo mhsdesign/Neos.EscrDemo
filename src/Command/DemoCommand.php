@@ -6,6 +6,7 @@ namespace App\Command;
 
 use App\Arboretum;
 use App\CommandHandler;
+use App\CommandHelper;
 use App\StandaloneContentRepositoryRegistry;
 use Neos\ContentRepository\Core\DimensionSpace\DimensionSpacePoint;
 use Neos\ContentRepository\Core\Feature\WorkspaceCreation\Command\CreateRootWorkspace;
@@ -51,7 +52,9 @@ class DemoCommand extends Command
             $contentRepository
         );
 
-        $verbose = true;
+        $commandHelper = new CommandHelper();
+
+        $verbose = $input->getOption('verbose');
 
         while (true) {
             $shortCommandName = trim(readline("\n> Command: ") ?: '');
@@ -66,7 +69,7 @@ class DemoCommand extends Command
             }
             readline_add_history($shortCommandName);
             try {
-                $options = $commandHandler->getCommandOptions($shortCommandName);
+                $options = $commandHelper->getCommandOptions($shortCommandName);
             } catch (\Exception $e) {
                 echo sprintf('Invalid command: %s', $e->getMessage());
                 echo "\nType to (q)uit\n";

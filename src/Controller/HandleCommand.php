@@ -35,9 +35,9 @@ class HandleCommand
                 json_decode($payload, true, 512, JSON_THROW_ON_ERROR)
             );
         } catch (\Exception|\TypeError $exception) {
-            return new Response(json_encode(['error' => ['message' => $exception->getMessage()]]), status: 500);
+            return new Response(json_encode(['error' => ['message' => $exception->getMessage()]], JSON_THROW_ON_ERROR), status: 500);
         }
 
-        return new Response(json_encode(['success' => true]));
+        return new Response(json_encode(['success' => true], JSON_THROW_ON_ERROR));
     }
 }

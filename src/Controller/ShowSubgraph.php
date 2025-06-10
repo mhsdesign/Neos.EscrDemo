@@ -11,6 +11,7 @@ use Neos\ContentRepository\Core\Feature\SubtreeTagging\Dto\SubtreeTags;
 use Neos\ContentRepository\Core\Projection\ContentGraph\VisibilityConstraints;
 use Neos\ContentRepository\Core\SharedModel\ContentRepository\ContentRepositoryId;
 use Neos\ContentRepository\Core\SharedModel\Workspace\WorkspaceName;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Attribute\AsController;
 use Symfony\Component\Routing\Attribute\Route;
@@ -31,7 +32,7 @@ class ShowSubgraph
         try {
             $workspace = $contentRepository->getContentGraph(WorkspaceName::fromString($workspaceName));
         } catch (\Exception $exception) {
-            return new Response(json_encode(['error' => ['message' => $exception->getMessage()]]), status: 500);
+            return new Response(json_encode(['error' => ['message' => $exception->getMessage()]], JSON_THROW_ON_ERROR), status: 500);
         }
 
         $arboretum = new Arboretum(
@@ -46,11 +47,11 @@ class ShowSubgraph
                 )
             );
         } catch (\Exception $exception) {
-            return new Response(json_encode(['error' => ['message' => $exception->getMessage()]]), status: 500);
+            return new Response(json_encode(['error' => ['message' => $exception->getMessage()]], JSON_THROW_ON_ERROR), status: 500);
         }
 
         return new Response(
-            json_encode(['success' => $output])
+            json_encode(['success' => $output], JSON_THROW_ON_ERROR)
         );
     }
 }
