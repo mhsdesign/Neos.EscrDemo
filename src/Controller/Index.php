@@ -19,7 +19,7 @@ class Index
             '<html>' .
             '<script defer src="/build/index.js"></script>' .
             '<link rel="stylesheet" href="/build/index.css"> ' .
-            '<body><div id="client"></div></body>' .
+            '<body</body>' .
             '</html>'
         );
     }

@@ -20,7 +20,7 @@ class HandleCommand
     ) {
     }
 
-    #[Route('/api/command/{commandName}', methods: ['POST', 'GET'])]
+    #[Route('/api/command/{commandName}', methods: ['POST'])]
     public function __invoke(
         string $commandName,
         #[MapQueryParameter] string $payload,
@@ -29,11 +29,15 @@ class HandleCommand
 
         $commandHandler = new CommandHandler($contentRepository);
 
-        $commandHandler->handleCommand(
-            $commandName,
-            json_decode($payload, true, 512, JSON_THROW_ON_ERROR)
-        );
+        try {
+            $commandHandler->handleCommand(
+                $commandName,
+                json_decode($payload, true, 512, JSON_THROW_ON_ERROR)
+            );
+        } catch (\Exception|\TypeError $exception) {
+            return new Response(json_encode(['error' => ['message' => $exception->getMessage()]]), status: 500);
+        }
 
-        return new Response();
+        return new Response(json_encode(['success' => true]));
     }
 }

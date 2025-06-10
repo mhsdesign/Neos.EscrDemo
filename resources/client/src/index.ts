@@ -4,6 +4,6 @@ import {App} from "./App";
 import {createElement} from "react";
 import "./App.css";
 
-createRoot(document.getElementById('client')).render(
+createRoot(document.body).render(
     createElement(App)
 )
