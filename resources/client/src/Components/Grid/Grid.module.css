@@ -1,0 +1,22 @@
+
+.grid {
+    display: grid;
+    height: 100vh;
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: 1fr 1fr;
+    grid-template-areas:
+        "first third"
+        "second third";
+}
+
+.first {
+    grid-area: first;
+}
+
+.second {
+    grid-area: second;
+}
+
+.third {
+    grid-area: third;
+}

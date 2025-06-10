@@ -1,0 +1,23 @@
+
+.input {
+    display: flex;
+    align-self: center;
+}
+
+.inputValueName {
+    grid-column-start: 1;
+    grid-column-end: 2;
+    text-align: right;
+    padding-right: 1rem;
+}
+
+.inputValue {
+    grid-column-start: 2;
+    grid-column-end: 3;
+}
+
+.inputValueList {
+    display: grid;
+    grid-template-columns: max-content minmax(auto, 400px);
+    grid-template-rows: auto;
+}

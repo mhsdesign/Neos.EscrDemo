@@ -1,2 +1,2 @@
-.o{color:red}
+.r{color:#0000cd;font-weight:700;font-family:Futura,sans-serif}.i{display:grid;height:100vh;grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr;grid-template-areas:"first third" "second third"}.e{grid-area:first}.t{grid-area:second}.d{grid-area:third}.a{height:100%;border:2px solid gray}.g{display:flex;flex-direction:row;gap:1rem}.l{display:flex;align-self:center}.o{grid-column-start:1;grid-column-end:2;text-align:right;padding-right:1rem}.n{grid-column-start:2;grid-column-end:3}.s{display:grid;grid-template-columns:max-content minmax(auto,400px);grid-template-rows:auto}body{margin:0}*{box-sizing:border-box}
 /*# sourceMappingURL=index.css.map */
