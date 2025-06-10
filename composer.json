@@ -46,7 +46,6 @@
         "symfony/polyfill-php83": "*"
     },
     "scripts": {
-        "demo": "@php bin/demo",
         "lint:phpstan": "@php vendor/bin/phpstan analyse --level 8 src",
         "server:run": [
             "Composer\\Config::disableProcessTimeout",

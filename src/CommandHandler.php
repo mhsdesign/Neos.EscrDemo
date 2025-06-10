@@ -37,6 +37,36 @@ use Neos\ContentRepository\Core\Feature\WorkspaceRebase\Command\RebaseWorkspace;
 
 final readonly class CommandHandler
 {
+    /** @var list<class-string<CommandInterface>> */
+    private const AVAILABLE_COMMANDS = [
+        AddDimensionShineThrough::class,
+        ChangeBaseWorkspace::class,
+        ChangeNodeAggregateName::class,
+        ChangeNodeAggregateType::class,
+        CreateNodeAggregateWithNode::class,
+        CreateNodeVariant::class,
+        CreateRootNodeAggregateWithNode::class,
+        CreateRootWorkspace::class,
+        CreateWorkspace::class,
+        DeleteWorkspace::class,
+        DisableNodeAggregate::class,
+        DiscardIndividualNodesFromWorkspace::class,
+        DiscardWorkspace::class,
+        EnableNodeAggregate::class,
+        MoveDimensionSpacePoint::class,
+        MoveNodeAggregate::class,
+        PublishIndividualNodesFromWorkspace::class,
+        PublishWorkspace::class,
+        RebasableToOtherWorkspaceInterface::class,
+        RebaseWorkspace::class,
+        RemoveNodeAggregate::class,
+        SetNodeProperties::class,
+        SetNodeReferences::class,
+        TagSubtree::class,
+        UntagSubtree::class,
+        UpdateRootNodeAggregateDimensions::class,
+    ];
+
     public function __construct(
         private ContentRepository $contentRepository
     ) {
@@ -58,6 +88,18 @@ final readonly class CommandHandler
     }
 
     /**
+     * @return list<string>
+     */
+    public function getAvailableCommands(): array
+    {
+        $commands = [];
+        foreach (self::AVAILABLE_COMMANDS as $commandClassName) {
+            $commands[] = substr(strrchr($commandClassName, '\\') ?: '', 1);
+        }
+        return $commands;
+    }
+
+    /**
      * @return array<mixed>
      */
     public function getCommandOptions(string $shortCommandName): array
@@ -74,7 +116,7 @@ final readonly class CommandHandler
      * @param array<mixed> $commandArguments
      * @return array<mixed>
      */
-    protected function addDefaultCommandArgumentValues(string $commandClassName, array $commandArguments): array
+    private function addDefaultCommandArgumentValues(string $commandClassName, array $commandArguments): array
     {
         // $commandArguments['workspaceName'] = $commandArguments['workspaceName'] ?? $this->currentWorkspaceName?->value;
         // $commandArguments['coveredDimensionSpacePoint'] = $commandArguments['coveredDimensionSpacePoint'] ?? $this->currentDimensionSpacePoint?->coordinates;
@@ -152,7 +194,7 @@ final readonly class CommandHandler
     /**
      * @param array<mixed> $properties
      */
-    protected static function deserializeProperties(array $properties): PropertyValuesToWrite
+    private static function deserializeProperties(array $properties): PropertyValuesToWrite
     {
         return PropertyValuesToWrite::fromArray(
             array_map(
@@ -165,38 +207,9 @@ final readonly class CommandHandler
     /**
      * @return class-string<CommandInterface>
      */
-    protected static function resolveShortCommandName(string $shortCommandName): string
+    private static function resolveShortCommandName(string $shortCommandName): string
     {
-        /** @var list<class-string<CommandInterface>> $commandClassNames */
-        $commandClassNames = [
-            AddDimensionShineThrough::class,
-            ChangeBaseWorkspace::class,
-            ChangeNodeAggregateName::class,
-            ChangeNodeAggregateType::class,
-            CreateNodeAggregateWithNode::class,
-            CreateNodeVariant::class,
-            CreateRootNodeAggregateWithNode::class,
-            CreateRootWorkspace::class,
-            CreateWorkspace::class,
-            DeleteWorkspace::class,
-            DisableNodeAggregate::class,
-            DiscardIndividualNodesFromWorkspace::class,
-            DiscardWorkspace::class,
-            EnableNodeAggregate::class,
-            MoveDimensionSpacePoint::class,
-            MoveNodeAggregate::class,
-            PublishIndividualNodesFromWorkspace::class,
-            PublishWorkspace::class,
-            RebasableToOtherWorkspaceInterface::class,
-            RebaseWorkspace::class,
-            RemoveNodeAggregate::class,
-            SetNodeProperties::class,
-            SetNodeReferences::class,
-            TagSubtree::class,
-            UntagSubtree::class,
-            UpdateRootNodeAggregateDimensions::class,
-        ];
-        foreach ($commandClassNames as $commandClassName) {
+        foreach (self::AVAILABLE_COMMANDS as $commandClassName) {
             if (substr(strrchr($commandClassName, '\\') ?: '', 1) === $shortCommandName) {
                 return $commandClassName;
             }
