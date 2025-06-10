@@ -1,9 +1,0 @@
-
-"My.Custom:Root":
-  superTypes:
-    "Neos.ContentRepository:Root": true
-
-"My.Custom:Node":
-  properties:
-    title:
-      type: string

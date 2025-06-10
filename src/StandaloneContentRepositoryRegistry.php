@@ -34,6 +34,7 @@ use Neos\ContentRepositoryRegistry\Factory\SubscriptionStore\DoctrineSubscriptio
 use Neos\EventStore\DoctrineAdapter\DoctrineEventStore;
 use Neos\EventStore\EventStoreInterface;
 use Psr\Clock\ClockInterface;
+use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\Serializer\Normalizer\BackedEnumNormalizer;
 use Symfony\Component\Serializer\Normalizer\DateTimeNormalizer;
 use Symfony\Component\Serializer\Serializer;
@@ -58,7 +59,9 @@ final class StandaloneContentRepositoryRegistry
      */
     public function __construct(
         private readonly Connection $dbalConnection,
+        #[Autowire(param: 'dimensions')]
         private readonly array $dimensionConfiguration,
+        #[Autowire(param: 'nodeTypes')]
         private readonly array $nodeTypeConfiguration,
     ) {
     }

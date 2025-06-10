@@ -1,8 +1,0 @@
-#!/usr/bin/php
-<?php
-
-use Neos\EscrDemo\Demo;
-
-require __DIR__ . '/../vendor/autoload.php';
-
-Demo::boot();

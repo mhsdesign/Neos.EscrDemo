@@ -2,10 +2,11 @@
 
 declare(strict_types=1);
 
-namespace App;
+namespace App\Command;
 
-use Doctrine\DBAL\Connection;
-use Doctrine\DBAL\DriverManager;
+use App\Arboretum;
+use App\CommandHandler;
+use App\StandaloneContentRepositoryRegistry;
 use Neos\ContentRepository\Core\DimensionSpace\DimensionSpacePoint;
 use Neos\ContentRepository\Core\Feature\WorkspaceCreation\Command\CreateRootWorkspace;
 use Neos\ContentRepository\Core\Projection\ContentGraph\VisibilityConstraints;
@@ -14,28 +15,26 @@ use Neos\ContentRepository\Core\SharedModel\ContentRepository\ContentRepositoryI
 use Neos\ContentRepository\Core\SharedModel\Exception\WorkspaceDoesNotExist;
 use Neos\ContentRepository\Core\SharedModel\Workspace\ContentStreamId;
 use Neos\ContentRepository\Core\SharedModel\Workspace\WorkspaceName;
-use Symfony\Component\Yaml\Yaml;
+use Symfony\Component\Console\Attribute\AsCommand;
+use Symfony\Component\Console\Command\Command;
+use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Output\OutputInterface;
 
-final class Demo
+#[AsCommand(name: 'demo:start')]
+class DemoCommand extends Command
 {
     public function __construct(
-        private Arboretum $arboretum,
-        private CommandHandler $commandHandler
+        private StandaloneContentRepositoryRegistry $contentRepositoryRegistry,
     ) {
+        parent::__construct();
     }
 
-    public static function boot(): void
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        $contentRepositoryRegistry = new StandaloneContentRepositoryRegistry(
-            dbalConnection: self::getConnection(),
-            dimensionConfiguration: [],
-            nodeTypeConfiguration: Yaml::parseFile(__DIR__ . '/../Settings.NodeTypes.yaml')
-        );
-
-        $crMaintainer = $contentRepositoryRegistry->buildService(ContentRepositoryId::fromString('default'), new ContentRepositoryMaintainerFactory());
+        $crMaintainer = $this->contentRepositoryRegistry->buildService(ContentRepositoryId::fromString('default'), new ContentRepositoryMaintainerFactory());
         $crMaintainer->setUp();
 
-        $contentRepository = $contentRepositoryRegistry->get(ContentRepositoryId::fromString('default'));
+        $contentRepository = $this->contentRepositoryRegistry->get(ContentRepositoryId::fromString('default'));
 
         try {
             $liveWorkspace = $contentRepository->getContentGraph(WorkspaceName::forLive());
@@ -44,54 +43,30 @@ final class Demo
             $liveWorkspace = $contentRepository->getContentGraph(WorkspaceName::forLive());
         }
 
-        $instance = new self(
-            new Arboretum(
-                $liveWorkspace
-            ),
-            new CommandHandler(
-                $contentRepository
-            )
+        $arboretum = new Arboretum(
+            $liveWorkspace
         );
 
-        $instance->run(
-            verbose: true
+        $commandHandler = new CommandHandler(
+            $contentRepository
         );
-    }
 
-    private static function getConnection(): Connection
-    {
-        $persistence = Yaml::parseFile(__DIR__ . '/../Settings.Persistence.yaml');
+        $verbose = true;
 
-        $connectionParams = [
-            'dbname' => $persistence['persistence']['dbname'],
-            'user' => $persistence['persistence']['user'],
-            'password' => $persistence['persistence']['password'],
-            'host' => $persistence['persistence']['host'],
-            'driver' => $persistence['persistence']['driver'],
-            'port' => $persistence['persistence']['port'] ?? 3306
-        ];
-
-        $connection = DriverManager::getConnection($connectionParams);
-        $connection->connect();
-        return $connection;
-    }
-
-    public function run(bool $verbose): void
-    {
         while (true) {
             $shortCommandName = trim(readline("\n> Command: ") ?: '');
             if ($shortCommandName === 'quit' || $shortCommandName === 'q') {
-                return;
+                return Command::SUCCESS;
             }
             if ($shortCommandName === 'print' || $shortCommandName === 'p') {
                 echo "\n";
-                echo $this->arboretum->toAscii(DimensionSpacePoint::createWithoutDimensions(), VisibilityConstraints::createEmpty());
+                echo $arboretum->toAscii(DimensionSpacePoint::createWithoutDimensions(), VisibilityConstraints::createEmpty());
                 echo "\n";
                 continue;
             }
             readline_add_history($shortCommandName);
             try {
-                $options = $this->commandHandler->getCommandOptions($shortCommandName);
+                $options = $commandHandler->getCommandOptions($shortCommandName);
             } catch (\Exception $e) {
                 echo sprintf('Invalid command: %s', $e->getMessage());
                 echo "\nType to (q)uit\n";
@@ -106,7 +81,7 @@ final class Demo
 
 
             try {
-                $this->commandHandler->handleCommand($shortCommandName, $inputOptions);
+                $commandHandler->handleCommand($shortCommandName, $inputOptions);
             } catch (\Exception $e) {
                 echo sprintf('Exception (%s, %s): %s' . PHP_EOL, (new \ReflectionClass($e::class))->getShortName(), $e->getCode(), $e->getMessage());
                 if ($verbose) {
@@ -126,7 +101,7 @@ final class Demo
             }
 
             echo "\n";
-            echo $this->arboretum->toAscii(DimensionSpacePoint::createWithoutDimensions(), VisibilityConstraints::createEmpty());
+            echo $arboretum->toAscii(DimensionSpacePoint::createWithoutDimensions(), VisibilityConstraints::createEmpty());
             echo "\n";
         }
     }
