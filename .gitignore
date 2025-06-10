@@ -10,3 +10,7 @@
 ###< symfony/framework-bundle ###
 
 /.idea/
+
+tsconfig.tsbuildinfo
+node_modules
+.yarn

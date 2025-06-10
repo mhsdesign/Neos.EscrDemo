@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../resources/client/src/Components.module.css"],
+  "sourcesContent": ["\n.red {\n    color: red;\n}\n"],
+  "mappings": "AACA,CAACA,EACG,MAAO,GACX",
+  "names": ["red"]
+}

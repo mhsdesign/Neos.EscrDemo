@@ -1,0 +1,14 @@
+{
+  "name": "@mhsdesign/neos-escr-demo",
+  "version": "1.0.0",
+  "workspaces": [
+    "resources/client"
+  ],
+  "scripts": {
+    "build": "esbuild --bundle @mhsdesign/neos-escr-demo-client/src/index.ts --outdir=public/build --minify --sourcemap"
+  },
+  "devDependencies": {
+    "esbuild": "~0.25"
+  },
+  "packageManager": "yarn@3.2.0"
+}

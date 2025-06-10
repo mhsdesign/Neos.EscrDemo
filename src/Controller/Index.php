@@ -15,7 +15,12 @@ class Index
     public function __invoke(): Response
     {
         return new Response(
-            '<html><body>Test</body></html>'
+            '<!DOCTYPE html>' .
+            '<html>' .
+            '<script defer src="/build/index.js"></script>' .
+            '<link rel="stylesheet" href="/build/index.css"> ' .
+            '<body><div id="client"></div></body>' .
+            '</html>'
         );
     }
 }
