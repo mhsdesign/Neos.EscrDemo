@@ -10,19 +10,36 @@ import {InputValue} from "./Components/Input/InputValue";
 import {Button} from "./Components/Input/Button";
 import {useAsync, useAsyncFn} from "react-use";
 import {availableCommands} from "./Api/AvailableCommands";
-import {useState} from "react";
+import {useEffect, useState} from "react";
 import {handleCommand} from "./Api/HandleCommand";
+import {DimensionSpacePoint, showSubgraph, VisibilityConstraints} from "./Api/ShowSubgraph";
 
 export const App = () => {
-    const commandsFetch = useAsync(availableCommands);
+    const commandsState = useAsync(availableCommands);
+
     const [selectedCommand, selectCommand] = useState<string|null>(null);
     const [selectedOptions, selectOptions] = useState<Record<string,string>>({});
 
-    const [issueCommandState, issueCommand] = useAsyncFn(() => {
-        return handleCommand(selectedCommand, selectedOptions);
-    }, [selectedCommand, selectedOptions])
+    const [selectedWorkspace, selectWorkspace] = useState<string>('live');
+    const [selectedDimensionSpacePoint, selectDimensionSpacePoint] = useState<DimensionSpacePoint>({});
+    const [selectedVisibilityConstraints, selectVisibilityConstraints] = useState<VisibilityConstraints>([]);
 
-    if (commandsFetch.loading) {
+    const [showSubgraphState, invokeShowSubgraph] = useAsyncFn(() => {
+        return showSubgraph(selectedWorkspace, selectedDimensionSpacePoint, selectedVisibilityConstraints);
+    }, [selectedWorkspace, selectedDimensionSpacePoint, selectedVisibilityConstraints]);
+
+    const [handleCommandState, invokeHandleCommand] = useAsyncFn(() => {
+        return handleCommand(selectedCommand, selectedOptions);
+    }, [selectedCommand, selectedOptions]);
+
+    useEffect(() => {
+        if (commandsState.loading || handleCommandState.loading) {
+            return;
+        }
+        invokeShowSubgraph();
+    }, [selectedWorkspace, selectedDimensionSpacePoint, selectedVisibilityConstraints, handleCommandState])
+
+    if (commandsState.loading) {
         return "";
     }
 
@@ -30,18 +47,18 @@ export const App = () => {
         first={
             <>
                 <Headline title="Neos Escr Demo" />
-                <Input options={['', ...Object.keys(commandsFetch.value)]} value={selectedCommand ?? ''} onChange={selectCommand} />
+                <Input options={['', ...Object.keys(commandsState.value)]} value={selectedCommand ?? ''} onChange={selectCommand} />
                 {selectedCommand
                     ? <>
                         <InputValueList>
-                            {commandsFetch.value[selectedCommand].map((argumentName) => <InputValue name={argumentName} value={selectedOptions[argumentName] ?? ''} onChange={(argumentValue) => { selectOptions({...selectedOptions, [argumentName]: argumentValue}) }} />)}
+                            {commandsState.value[selectedCommand].map((argumentName) => <InputValue name={argumentName} value={selectedOptions[argumentName] ?? ''} onChange={(argumentValue) => { selectOptions({...selectedOptions, [argumentName]: argumentValue}) }} />)}
                         </InputValueList>
-                        <Button label="Issue command" onClick={issueCommand} />
-                        {issueCommandState.loading
+                        <Button label="Handle command" onClick={invokeHandleCommand} />
+                        {handleCommandState.loading
                             ? "Loading..."
-                            : issueCommandState.error
-                                ? `Last command failed: ${issueCommandState.error.message}`
-                                : issueCommandState.value !== undefined ? "Command succeeded" : ""
+                            : handleCommandState.error
+                                ? `Last command failed: ${handleCommandState.error.message}`
+                                : handleCommandState.value !== undefined ? "Command succeeded" : ""
                         }
                     </>
                     : ""
@@ -59,11 +76,18 @@ export const App = () => {
 `} />}
         third={<>
             <SelectList>
-                <Select label="Workspace" value="Live" onChange={() => {}} />
-                <Select label="Dimension Space Point" value="{}" onChange={() => {}} />
-                <Select label="Visibility Constraints" value="[]" onChange={() => {}} />
+                <Select label="Workspace" value={selectedWorkspace} onChange={(rawString) => {selectWorkspace(rawString)}} />
+                <Select label="Dimension Space Point" value={JSON.stringify(selectedDimensionSpacePoint)} onChange={(rawString) => {selectDimensionSpacePoint(JSON.parse(rawString))}} />
+                <Select label="Visibility Constraints" value={selectedVisibilityConstraints.join(',')} onChange={(rawString) => {selectVisibilityConstraints(rawString.split(',').map(str => str.trim()))}} />
             </SelectList>
-            <Preview text={"test"} />
+            <Preview
+                text={showSubgraphState.loading
+                    ? ""
+                    : showSubgraphState.error
+                        ? `Subgraph failed: ${showSubgraphState.error.message}`
+                        : showSubgraphState.value
+                }
+            />
         </>}
     />
 }

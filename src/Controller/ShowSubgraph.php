@@ -28,17 +28,29 @@ class ShowSubgraph
     {
         $contentRepository = $this->contentRepositoryRegistry->get(ContentRepositoryId::fromString('default'));
 
+        try {
+            $workspace = $contentRepository->getContentGraph(WorkspaceName::fromString($workspaceName));
+        } catch (\Exception $exception) {
+            return new Response(json_encode(['error' => ['message' => $exception->getMessage()]]), status: 500);
+        }
+
         $arboretum = new Arboretum(
-            $contentRepository->getContentGraph(WorkspaceName::fromString($workspaceName))
+            $workspace
         );
 
-        return new Response(
-            '<html><body>' . json_encode(func_get_args()) . $arboretum->toAscii(
+        try {
+            $output = $arboretum->toAscii(
                 DimensionSpacePoint::fromJsonString($dimensionSpacePoint),
                 VisibilityConstraints::excludeSubtreeTags(
                     SubtreeTags::fromStrings(...json_decode($visibilityConstraints))
                 )
-            ) . '</body></html>'
+            );
+        } catch (\Exception $exception) {
+            return new Response(json_encode(['error' => ['message' => $exception->getMessage()]]), status: 500);
+        }
+
+        return new Response(
+            json_encode(['success' => $output])
         );
     }
 }
