@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Neos\EscrDemo;
+namespace App;
 
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\DriverManager;

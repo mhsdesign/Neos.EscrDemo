@@ -1,6 +1,6 @@
 <?php
 
-namespace Neos\EscrDemo;
+namespace App;
 
 use DateTimeImmutable;
 use Doctrine\DBAL\Connection;

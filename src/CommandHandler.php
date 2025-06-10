@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Neos\EscrDemo;
+namespace App;
 
 use Neos\ContentRepository\Core\CommandHandler\CommandInterface;
 use Neos\ContentRepository\Core\ContentRepository;

@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Neos\EscrDemo;
+namespace App;
 
 use Neos\ContentRepository\Core\DimensionSpace\DimensionSpacePoint;
 use Neos\ContentRepository\Core\DimensionSpace\OriginDimensionSpacePoint;
