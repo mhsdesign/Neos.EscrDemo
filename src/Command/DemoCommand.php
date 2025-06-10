@@ -7,7 +7,7 @@ namespace App\Command;
 use App\Arboretum;
 use App\CommandHandler;
 use App\CommandHelper;
-use App\StandaloneContentRepositoryRegistry;
+use App\ContentRepositoryFactoryBuilder;
 use Neos\ContentRepository\Core\DimensionSpace\DimensionSpacePoint;
 use Neos\ContentRepository\Core\Feature\WorkspaceCreation\Command\CreateRootWorkspace;
 use Neos\ContentRepository\Core\Projection\ContentGraph\VisibilityConstraints;
@@ -25,17 +25,17 @@ use Symfony\Component\Console\Output\OutputInterface;
 class DemoCommand extends Command
 {
     public function __construct(
-        private StandaloneContentRepositoryRegistry $contentRepositoryRegistry,
+        private ContentRepositoryFactoryBuilder $contentRepositoryFactoryBuilder,
     ) {
         parent::__construct();
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        $crMaintainer = $this->contentRepositoryRegistry->buildService(ContentRepositoryId::fromString('default'), new ContentRepositoryMaintainerFactory());
+        $contentRepositoryFactory = $this->contentRepositoryFactoryBuilder->createForId(ContentRepositoryId::fromString('default'));
+        $crMaintainer = $contentRepositoryFactory->buildService(new ContentRepositoryMaintainerFactory());
         $crMaintainer->setUp();
-
-        $contentRepository = $this->contentRepositoryRegistry->get(ContentRepositoryId::fromString('default'));
+        $contentRepository = $contentRepositoryFactory->getOrBuild();
 
         try {
             $liveWorkspace = $contentRepository->getContentGraph(WorkspaceName::forLive());

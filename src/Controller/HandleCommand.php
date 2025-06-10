@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace App\Controller;
 
 use App\CommandHandler;
-use App\StandaloneContentRepositoryRegistry;
-use Neos\ContentRepository\Core\SharedModel\ContentRepository\ContentRepositoryId;
+use App\SessionBasedContentRepositoryFactory;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Attribute\AsController;
 use Symfony\Component\HttpKernel\Attribute\MapQueryParameter;
@@ -16,7 +16,7 @@ use Symfony\Component\Routing\Attribute\Route;
 class HandleCommand
 {
     public function __construct(
-        private StandaloneContentRepositoryRegistry $contentRepositoryRegistry
+        private SessionBasedContentRepositoryFactory $contentRepositoryFactory
     ) {
     }
 
@@ -24,8 +24,9 @@ class HandleCommand
     public function __invoke(
         string $commandName,
         #[MapQueryParameter] string $payload,
+        Request $request
     ): Response {
-        $contentRepository = $this->contentRepositoryRegistry->get(ContentRepositoryId::fromString('default'));
+        $contentRepository = $this->contentRepositoryFactory->getOrSetup($request->getSession());
 
         $commandHandler = new CommandHandler($contentRepository);
 

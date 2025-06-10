@@ -5,13 +5,10 @@ namespace App;
 use DateTimeImmutable;
 use Doctrine\DBAL\Connection;
 use Neos\ContentGraph\DoctrineDbalAdapter\DoctrineDbalContentGraphProjectionFactory;
-use Neos\ContentRepository\Core\ContentRepository;
 use Neos\ContentRepository\Core\Dimension\ConfigurationBasedContentDimensionSource;
 use Neos\ContentRepository\Core\Dimension\ContentDimensionSourceInterface;
 use Neos\ContentRepository\Core\Factory\CommandHooksFactory;
 use Neos\ContentRepository\Core\Factory\ContentRepositoryFactory;
-use Neos\ContentRepository\Core\Factory\ContentRepositoryServiceFactoryInterface;
-use Neos\ContentRepository\Core\Factory\ContentRepositoryServiceInterface;
 use Neos\ContentRepository\Core\Factory\ContentRepositorySubscriberFactories;
 use Neos\ContentRepository\Core\Feature\Security\AuthProviderInterface;
 use Neos\ContentRepository\Core\Feature\Security\Dto\UserId;
@@ -39,20 +36,8 @@ use Symfony\Component\Serializer\Normalizer\BackedEnumNormalizer;
 use Symfony\Component\Serializer\Normalizer\DateTimeNormalizer;
 use Symfony\Component\Serializer\Serializer;
 
-/**
- * This class is modeled after https://github.com/neos/neos-development-collection/blob/38385ac2d401358c34f5a6c1e2a6638b192fd78a/Neos.ContentRepositoryRegistry/Classes/ContentRepositoryRegistry.php
- *
- * -> but with less configuration and more hard-wiring
- */
-final class StandaloneContentRepositoryRegistry
+final class ContentRepositoryFactoryBuilder
 {
-    /**
-     * Cache to ensure the same CR is returned every time.
-     *
-     * @var array<string, ContentRepositoryFactory>
-     */
-    private array $factoryInstances = [];
-
     /**
      * @param array<mixed> $dimensionConfiguration
      * @param array<mixed> $nodeTypeConfiguration
@@ -66,33 +51,10 @@ final class StandaloneContentRepositoryRegistry
     ) {
     }
 
-    public function get(ContentRepositoryId $contentRepositoryId): ContentRepository
-    {
-        return $this->getFactory($contentRepositoryId)->getOrBuild();
-    }
-
     /**
-     * @param ContentRepositoryId $contentRepositoryId
-     * @param ContentRepositoryServiceFactoryInterface<T> $contentRepositoryServiceFactory
-     * @return T
-     * @template T of ContentRepositoryServiceInterface
+     * Must only be invoked once per process
      */
-    public function buildService(ContentRepositoryId $contentRepositoryId, ContentRepositoryServiceFactoryInterface $contentRepositoryServiceFactory): ContentRepositoryServiceInterface
-    {
-        return $this->getFactory($contentRepositoryId)->buildService($contentRepositoryServiceFactory);
-    }
-
-    private function getFactory(ContentRepositoryId $contentRepositoryId): ContentRepositoryFactory
-    {
-        // This cache is CRUCIAL, because it ensures that the same CR always deals with the same objects internally, even if multiple services
-        // are called on the same CR.
-        if (!array_key_exists($contentRepositoryId->value, $this->factoryInstances)) {
-            $this->factoryInstances[$contentRepositoryId->value] = $this->buildFactory($contentRepositoryId);
-        }
-        return $this->factoryInstances[$contentRepositoryId->value];
-    }
-
-    private function buildFactory(ContentRepositoryId $contentRepositoryId): ContentRepositoryFactory
+    public function createForId(ContentRepositoryId $contentRepositoryId): ContentRepositoryFactory
     {
         $clock = $this->buildClock();
         return new ContentRepositoryFactory(

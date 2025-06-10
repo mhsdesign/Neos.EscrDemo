@@ -5,11 +5,10 @@ declare(strict_types=1);
 namespace App\Controller;
 
 use App\Arboretum;
-use App\StandaloneContentRepositoryRegistry;
+use App\SessionBasedContentRepositoryFactory;
 use Neos\ContentRepository\Core\DimensionSpace\DimensionSpacePoint;
 use Neos\ContentRepository\Core\Feature\SubtreeTagging\Dto\SubtreeTags;
 use Neos\ContentRepository\Core\Projection\ContentGraph\VisibilityConstraints;
-use Neos\ContentRepository\Core\SharedModel\ContentRepository\ContentRepositoryId;
 use Neos\ContentRepository\Core\SharedModel\Workspace\WorkspaceName;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -20,14 +19,14 @@ use Symfony\Component\Routing\Attribute\Route;
 class ShowSubgraph
 {
     public function __construct(
-        private StandaloneContentRepositoryRegistry $contentRepositoryRegistry
+        private SessionBasedContentRepositoryFactory $contentRepositoryFactory
     ) {
     }
 
     #[Route('/api/subgraph/{workspaceName}/{dimensionSpacePoint}/{visibilityConstraints}', methods: ['GET'])]
-    public function __invoke(string $workspaceName, string $dimensionSpacePoint, string $visibilityConstraints): Response
+    public function __invoke(string $workspaceName, string $dimensionSpacePoint, string $visibilityConstraints, Request $request): Response
     {
-        $contentRepository = $this->contentRepositoryRegistry->get(ContentRepositoryId::fromString('default'));
+        $contentRepository = $this->contentRepositoryFactory->getOrSetup($request->getSession());
 
         try {
             $workspace = $contentRepository->getContentGraph(WorkspaceName::fromString($workspaceName));
