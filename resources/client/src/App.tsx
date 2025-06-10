@@ -12,7 +12,7 @@ import {useAsync, useAsyncFn} from "react-use";
 import {availableCommands} from "./Api/AvailableCommands";
 import {useEffect, useState} from "react";
 import {handleCommand} from "./Api/HandleCommand";
-import {DimensionSpacePoint, showSubgraph, VisibilityConstraints} from "./Api/ShowSubgraph";
+import {showSubgraph} from "./Api/ShowSubgraph";
 
 export const App = () => {
     const commandsState = useAsync(availableCommands);
@@ -21,11 +21,12 @@ export const App = () => {
     const [selectedOptions, selectOptions] = useState<Record<string,string>>({});
 
     const [selectedWorkspace, selectWorkspace] = useState<string>('live');
-    const [selectedDimensionSpacePoint, selectDimensionSpacePoint] = useState<DimensionSpacePoint>({});
-    const [selectedVisibilityConstraints, selectVisibilityConstraints] = useState<VisibilityConstraints>([]);
+    const [selectedDimensionSpacePoint, selectDimensionSpacePoint] = useState('{}');
+    const [selectedVisibilityConstraints, selectVisibilityConstraints] = useState('');
 
-    const [showSubgraphState, invokeShowSubgraph] = useAsyncFn(() => {
-        return showSubgraph(selectedWorkspace, selectedDimensionSpacePoint, selectedVisibilityConstraints);
+    const [showSubgraphState, invokeShowSubgraph] = useAsyncFn(async () => {
+        const dimensionSpacePoint = JSON.parse(selectedDimensionSpacePoint);
+        return showSubgraph(selectedWorkspace, dimensionSpacePoint, selectedVisibilityConstraints.split(',').map(str => str.trim()).filter(Boolean));
     }, [selectedWorkspace, selectedDimensionSpacePoint, selectedVisibilityConstraints]);
 
     const [handleCommandState, invokeHandleCommand] = useAsyncFn(() => {
@@ -76,9 +77,9 @@ export const App = () => {
 `} />}
         third={<>
             <SelectList>
-                <Select label="Workspace" value={selectedWorkspace} onChange={(rawString) => {selectWorkspace(rawString)}} />
-                <Select label="Dimension Space Point" value={JSON.stringify(selectedDimensionSpacePoint)} onChange={(rawString) => {selectDimensionSpacePoint(JSON.parse(rawString))}} />
-                <Select label="Visibility Constraints" value={selectedVisibilityConstraints.join(',')} onChange={(rawString) => {selectVisibilityConstraints(rawString.split(',').map(str => str.trim()))}} />
+                <Select label="Workspace" value={selectedWorkspace} onChange={selectWorkspace} />
+                <Select label="Dimension Space Point" value={selectedDimensionSpacePoint} onChange={selectDimensionSpacePoint} />
+                <Select label="Visibility Constraints" value={selectedVisibilityConstraints} onChange={selectVisibilityConstraints} />
             </SelectList>
             <Preview
                 text={showSubgraphState.loading
