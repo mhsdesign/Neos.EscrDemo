@@ -13,6 +13,7 @@
         "symfony/framework-bundle": "~6.4",
         "symfony/runtime": "~6.4",
         "symfony/yaml": "~6.4",
+        "doctrine/doctrine-bundle": "^2.1",
         "neos/contentrepository-core": "~9.0",
         "neos/contentgraph-doctrinedbaladapter": "~9.0",
         "neos/contentrepositoryregistry": "~9.0"
