@@ -11,20 +11,20 @@
         "second third";
 }
 
+.first, .second, .third {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
 .first {
     grid-area: first;
 }
 
 .second {
     grid-area: second;
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
 }
 
 .third {
     grid-area: third;
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
 }

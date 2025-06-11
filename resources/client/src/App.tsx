@@ -48,7 +48,7 @@ export const App = () => {
         first={
             <>
                 <Headline title="Neos Escr Demo" />
-                <Input options={['', ...Object.keys(commandsState.value)]} value={selectedCommand ?? ''} onChange={selectCommand} />
+                <Input placeHolder="Select a new command" options={Object.keys(commandsState.value)} value={selectedCommand ?? ''} onChange={selectCommand} />
                 {selectedCommand
                     ? <>
                         <InputValueList>

@@ -1,4 +1,8 @@
 
+.button {
+    align-self: center;
+}
+
 .input {
     display: flex;
     align-self: center;
@@ -20,4 +24,6 @@
     display: grid;
     grid-template-columns: max-content minmax(auto, 400px);
     grid-template-rows: auto;
+    gap: 0.25rem;
+    align-self: center;
 }
