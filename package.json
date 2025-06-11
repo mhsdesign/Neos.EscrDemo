@@ -5,7 +5,7 @@
     "resources/client"
   ],
   "scripts": {
-    "build": "esbuild --bundle @mhsdesign/neos-escr-demo-client/src/index.ts --outdir=public/build --minify --sourcemap",
+    "build": "esbuild --bundle @mhsdesign/neos-escr-demo-client/src/index.ts --outdir=public/_Resources/build --minify --sourcemap",
     "watch": "yarn build --watch"
   },
   "devDependencies": {

@@ -17,8 +17,8 @@ class Index
         return new Response(
             '<!DOCTYPE html>' .
             '<html>' .
-            '<script defer src="/build/index.js"></script>' .
-            '<link rel="stylesheet" href="/build/index.css"> ' .
+            '<script defer src="_Resources/build/index.js"></script>' .
+            '<link rel="stylesheet" href="_Resources/build/index.css"> ' .
             '<body</body>' .
             '</html>'
         );
