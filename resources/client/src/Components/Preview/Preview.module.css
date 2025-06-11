@@ -2,4 +2,6 @@
 .preview {
     height: 100%;
     border: 2px solid gray;
+    margin: 0;
+    padding: 1rem;
 }

@@ -1,5 +1,7 @@
 
 .grid {
+    padding: 0.5rem;
+    gap: 0.5rem;
     display: grid;
     height: 100vh;
     grid-template-columns: 1fr 1fr;
@@ -15,8 +17,14 @@
 
 .second {
     grid-area: second;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
 }
 
 .third {
     grid-area: third;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
 }
