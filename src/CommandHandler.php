@@ -69,13 +69,11 @@ final readonly class CommandHandler
                 unset($commandArguments['nodeName']);
             }
         }
-        // if ($commandClassName === SetNodeProperties::class) {
-        //     if (is_string($commandArguments['propertyValues'] ?? null)) {
-        //         $commandArguments['propertyValues'] = $this->deserializeProperties(json_decode($commandArguments['propertyValues'], true, 512, JSON_THROW_ON_ERROR))->values;
-        //     } elseif (is_array($commandArguments['propertyValues'] ?? null)) {
-        //         $commandArguments['propertyValues'] = $this->deserializeProperties($commandArguments['propertyValues'])->values;
-        //     }
-        // }
+        if ($commandClassName === SetNodeProperties::class) {
+            if (is_string($commandArguments['propertyValues'] ?? null)) {
+                $commandArguments['propertyValues'] = self::deserializeProperties(json_decode($commandArguments['propertyValues'], true, 512, JSON_THROW_ON_ERROR))->values;
+            }
+        }
         if ($commandClassName === CreateNodeAggregateWithNode::class || $commandClassName === SetNodeProperties::class) {
             if (is_string($commandArguments['originDimensionSpacePoint'] ?? null) && !empty($commandArguments['originDimensionSpacePoint'])) {
 
