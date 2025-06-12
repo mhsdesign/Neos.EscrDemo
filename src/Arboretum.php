@@ -33,13 +33,12 @@ final readonly class Arboretum
                 /** @var Node $node */
                 $node = array_shift($stack);
 
-                $lines[] = $this->jsonSerializeNodeAndDescendents(
-                    $subgraph->findSubtree(
-                        $node->aggregateId,
-                        FindSubtreeFilter::create()
-                    ),
-                    $subgraph
+                $subtree = $subgraph->findSubtree(
+                    $node->aggregateId,
+                    FindSubtreeFilter::create()
                 );
+                assert($subtree !== null);
+                $lines[] = $this->jsonSerializeNodeAndDescendents($subtree, $subgraph);
             }
         }
 
