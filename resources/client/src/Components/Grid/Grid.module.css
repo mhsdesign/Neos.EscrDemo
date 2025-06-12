@@ -4,8 +4,8 @@
     gap: 0.5rem;
     display: grid;
     height: 100vh;
-    grid-template-columns: 1fr 1fr;
-    grid-template-rows: 1fr 1fr;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    grid-template-rows: minmax(0, 1fr) minmax(0, 1fr);
     grid-template-areas:
         "first third"
         "second third";
