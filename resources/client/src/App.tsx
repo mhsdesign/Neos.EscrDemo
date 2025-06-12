@@ -13,9 +13,13 @@ import {availableCommands} from "./Api/AvailableCommands";
 import {useEffect, useState} from "react";
 import {handleCommand} from "./Api/HandleCommand";
 import {showSubgraph} from "./Api/ShowSubgraph";
+import {getNodeTypes} from "./Api/GetNodeTypes";
+import {Editor} from "./Components/Editor/Editor";
+import {setNodeTypes} from "./Api/SetNodeTypes";
 
 export const App = () => {
     const commandsState = useAsync(availableCommands);
+    const initialNodeTypesState = useAsync(getNodeTypes);
 
     const [selectedCommand, selectCommand] = useState<string|null>(null);
     const [selectedOptions, selectOptions] = useState<Record<string,string>>({});
@@ -32,6 +36,10 @@ export const App = () => {
     const [handleCommandState, invokeHandleCommand] = useAsyncFn(() => {
         return handleCommand(selectedCommand, selectedOptions);
     }, [selectedCommand, selectedOptions]);
+
+    const [setNodeTypesState, invokeSetNodeTypes] = useAsyncFn((nodeTypes: string) => {
+        return setNodeTypes(nodeTypes);
+    }, []);
 
     useEffect(() => {
         if (commandsState.loading || handleCommandState.loading) {
@@ -66,15 +74,7 @@ export const App = () => {
                 }
             </>
         }
-        second={<Preview text={`"My.Custom:Root":
-    superTypes:
-        "Neos.ContentRepository:Root": true
-
-"My.Custom:Node":
-    properties:
-        title:
-            type: string
-`} />}
+        second={<Editor text={initialNodeTypesState.value} onChange={invokeSetNodeTypes} />}
         third={<>
             <SelectList>
                 <Select label="Workspace" value={selectedWorkspace} onChange={selectWorkspace} />

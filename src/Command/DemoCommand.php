@@ -20,6 +20,7 @@ use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Yaml\Yaml;
 
 #[AsCommand(name: 'demo')]
 class DemoCommand extends Command
@@ -32,7 +33,20 @@ class DemoCommand extends Command
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        $contentRepositoryFactory = $this->contentRepositoryFactoryBuilder->createForId(ContentRepositoryId::fromString('default'));
+        $contentRepositoryFactory = $this->contentRepositoryFactoryBuilder->createForId(
+            ContentRepositoryId::fromString('default'),
+            dimensionConfiguration: [],
+            nodeTypeConfiguration: Yaml::parse(<<<YAML
+            "My.Custom:Root":
+                superTypes:
+                    "Neos.ContentRepository:Root": true
+
+            "My.Custom:Node":
+                properties:
+                    title:
+                        type: string
+            YAML)
+        );
         $crMaintainer = $contentRepositoryFactory->buildService(new ContentRepositoryMaintainerFactory());
         $crMaintainer->setUp();
         $contentRepository = $contentRepositoryFactory->getOrBuild();

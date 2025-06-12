@@ -6,7 +6,6 @@ use DateTimeImmutable;
 use Doctrine\DBAL\Connection;
 use Neos\ContentGraph\DoctrineDbalAdapter\DoctrineDbalContentGraphProjectionFactory;
 use Neos\ContentRepository\Core\Dimension\ConfigurationBasedContentDimensionSource;
-use Neos\ContentRepository\Core\Dimension\ContentDimensionSourceInterface;
 use Neos\ContentRepository\Core\Factory\CommandHooksFactory;
 use Neos\ContentRepository\Core\Factory\ContentRepositoryFactory;
 use Neos\ContentRepository\Core\Factory\ContentRepositorySubscriberFactories;
@@ -31,37 +30,35 @@ use Neos\ContentRepositoryRegistry\Factory\SubscriptionStore\DoctrineSubscriptio
 use Neos\EventStore\DoctrineAdapter\DoctrineEventStore;
 use Neos\EventStore\EventStoreInterface;
 use Psr\Clock\ClockInterface;
-use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\Serializer\Normalizer\BackedEnumNormalizer;
 use Symfony\Component\Serializer\Normalizer\DateTimeNormalizer;
 use Symfony\Component\Serializer\Serializer;
 
 final class ContentRepositoryFactoryBuilder
 {
-    /**
-     * @param array<mixed> $dimensionConfiguration
-     * @param array<mixed> $nodeTypeConfiguration
-     */
     public function __construct(
-        private readonly Connection $dbalConnection,
-        #[Autowire(param: 'dimensions')]
-        private readonly array $dimensionConfiguration,
-        #[Autowire(param: 'nodeTypes')]
-        private readonly array $nodeTypeConfiguration,
+        private readonly Connection $dbalConnection
     ) {
     }
 
     /**
      * Must only be invoked once per process
+     * @param array<string,mixed> $dimensionConfiguration
+     * @param array<string,mixed> $nodeTypeConfiguration
      */
-    public function createForId(ContentRepositoryId $contentRepositoryId): ContentRepositoryFactory
-    {
+    public function createForId(
+        ContentRepositoryId $contentRepositoryId,
+        array $dimensionConfiguration,
+        array $nodeTypeConfiguration,
+    ): ContentRepositoryFactory {
         $clock = $this->buildClock();
         return new ContentRepositoryFactory(
             contentRepositoryId: $contentRepositoryId,
             eventStore: $this->buildEventStore($contentRepositoryId, $clock),
-            nodeTypeManager: $this->buildNodeTypeManager(),
-            contentDimensionSource: $this->buildContentDimensionSource(),
+            nodeTypeManager: NodeTypeManager::createFromArrayConfiguration(
+                $nodeTypeConfiguration
+            ),
+            contentDimensionSource: new ConfigurationBasedContentDimensionSource($dimensionConfiguration),
             propertySerializer: $this->buildPropertySerializer(),
             authProviderFactory: $this->buildAuthProviderFactory(),
             clock: $clock,
@@ -94,18 +91,6 @@ final class ContentRepositoryFactoryBuilder
         return new DoctrineDbalContentGraphProjectionFactory(
             $this->dbalConnection
         );
-    }
-
-    private function buildNodeTypeManager(): NodeTypeManager
-    {
-        return NodeTypeManager::createFromArrayConfiguration(
-            $this->nodeTypeConfiguration
-        );
-    }
-
-    private function buildContentDimensionSource(): ContentDimensionSourceInterface
-    {
-        return new ConfigurationBasedContentDimensionSource($this->dimensionConfiguration);
     }
 
     private function buildPropertySerializer(): Serializer
